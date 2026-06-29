@@ -1,0 +1,30 @@
+# Build outputs
+build/
+app/build/
+*.apk
+*.aab
+
+# IDE
+.idea/
+*.iml
+.gradle/
+local.properties
+
+# NDK
+.cxx/
+
+# Go binary
+one-api-android
+one-api-arm64
+app/src/main/jniLibs/arm64-v8a/liboneapi.so
+one-api-src/
+
+# Tokenizer cache (downloaded during build)
+app/src/main/assets/cl100k_base.tiktoken
+
+# Node
+node_modules/
+
+# OS
+.DS_Store
+Thumbs.db
