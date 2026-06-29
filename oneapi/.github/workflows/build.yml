@@ -1,0 +1,37 @@
+name: Build One API APK
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'oneapi/**'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          java-version: 17
+          distribution: temurin
+      - uses: gradle/actions/setup-gradle@v3
+      - uses: android-actions/setup-android@v3
+
+      - name: Download One API binary
+        working-directory: oneapi
+        run: |
+          curl -fL -o app/src/main/jniLibs/arm64-v8a/liboneapi.so \
+            https://github.com/songquanpeng/one-api/releases/download/v0.6.10/one-api-arm64
+          python3 align_fix.py app/src/main/jniLibs/arm64-v8a/liboneapi.so
+
+      - name: Build APK
+        working-directory: oneapi
+        run: ./gradlew assembleDebug
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: OneAPI.apk
+          path: oneapi/app/build/outputs/apk/debug/app-debug.apk
