@@ -7,7 +7,6 @@ import android.app.Service;
 import android.content.Intent;
 import android.os.Build;
 import android.os.IBinder;
-import android.util.Log;
 import androidx.core.app.NotificationCompat;
 import java.io.BufferedReader;
 import java.io.File;
@@ -15,14 +14,44 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.FileWriter;
+import java.io.FileReader;
 
 public class OneApiService extends Service {
-    private static Process process;
-    private static StringBuilder logBuffer = new StringBuilder();
     private static boolean running = false;
 
-    public static boolean isRunning() { return running; }
-    public static String getLog() { return logBuffer != null ? logBuffer.toString() : null; }
+    public static boolean isRunning() {
+        File pidFile = new File("/data/data/com.example.oneapi/files/oneapi.pid");
+        if (!pidFile.exists()) return false;
+        try (BufferedReader r = new BufferedReader(new FileReader(pidFile))) {
+            String pid = r.readLine();
+            if (pid == null || pid.isEmpty()) return false;
+            Process p = Runtime.getRuntime().exec(new String[]{"sh", "-c", "kill -0 " + pid + " 2>/dev/null && echo alive"});
+            BufferedReader br = new BufferedReader(new InputStreamReader(p.getInputStream()));
+            String result = br.readLine();
+            p.waitFor();
+            return "alive".equals(result);
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public static String getLog() {
+        File logFile = new File("/data/data/com.example.oneapi/files/oneapi.log");
+        if (!logFile.exists()) return null;
+        try {
+            Process p = Runtime.getRuntime().exec(new String[]{"sh", "-c", "tail -200 " + logFile.getAbsolutePath()});
+            BufferedReader r = new BufferedReader(new InputStreamReader(p.getInputStream()));
+            StringBuilder sb = new StringBuilder();
+            String line;
+            while ((line = r.readLine()) != null) {
+                sb.append(line).append("\n");
+            }
+            p.waitFor();
+            return sb.toString();
+        } catch (Exception e) {
+            return "Error reading log: " + e.getMessage();
+        }
+    }
 
     @Override
     public void onCreate() {
@@ -54,7 +83,7 @@ public class OneApiService extends Service {
             try {
                 startProcess(fPort, fDns);
             } catch (Exception e) {
-                Log.e("OneApiService", "Error: " + e.getMessage(), e);
+                android.util.Log.e("OneApiService", "Error: " + e.getMessage(), e);
                 running = false;
                 stopSelf();
             }
@@ -64,6 +93,8 @@ public class OneApiService extends Service {
 
     private void startProcess(String port, String dns) throws Exception {
         File workDir = getFilesDir();
+        File pidFile = new File(workDir, "oneapi.pid");
+        File logFile = new File(workDir, "oneapi.log");
         File bin = new File(getApplicationInfo().nativeLibraryDir, "liboneapi.so");
 
         File tokenDir = new File(workDir, "tiktoken");
@@ -90,41 +121,45 @@ public class OneApiService extends Service {
 
         File hookLib = new File(getApplicationInfo().nativeLibraryDir, "libdns_hook.so");
 
-        ProcessBuilder pb = new ProcessBuilder(bin.getAbsolutePath(), "--port", port);
-        pb.directory(workDir);
-        pb.redirectErrorStream(true);
-        pb.environment().put("TIKTOKEN_CACHE_DIR", tokenDir.getAbsolutePath());
-        pb.environment().put("GODEBUG", "netdns=go=1");
-        pb.environment().put("CUSTOM_RESOLV_CONF", resolvFile.getAbsolutePath());
-        pb.environment().put("LD_PRELOAD", hookLib.getAbsolutePath());
+        String cmd = "cd " + workDir.getAbsolutePath() + " && " +
+                     "export TIKTOKEN_CACHE_DIR=" + tokenDir.getAbsolutePath() + " && " +
+                     "export GODEBUG=netdns=go=1 && " +
+                     "export CUSTOM_RESOLV_CONF=" + resolvFile.getAbsolutePath() + " && " +
+                     "export LD_PRELOAD=" + hookLib.getAbsolutePath() + " && " +
+                     "setsid " + bin.getAbsolutePath() + " --port " + port +
+                     " > " + logFile.getAbsolutePath() + " 2>&1 & echo $!";
 
-        process = pb.start();
-        running = true;
+        Process p = Runtime.getRuntime().exec(new String[]{"sh", "-c", cmd});
+        String pid = new BufferedReader(new InputStreamReader(p.getInputStream())).readLine();
+        p.waitFor();
 
-        try (BufferedReader r = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
-            String line;
-            while ((line = r.readLine()) != null) {
-                Log.i("OneApiOutput", line);
-                if (logBuffer != null) {
-                    if (logBuffer.length() > 50000) {
-                        logBuffer.delete(0, 30000);
-                    }
-                    logBuffer.append(line).append("\n");
-                }
+        if (pid != null && !pid.isEmpty()) {
+            try (FileWriter w = new FileWriter(pidFile)) {
+                w.write(pid);
             }
+            running = true;
+            android.util.Log.i("OneApiService", "Started with PID: " + pid);
         }
-        int exitCode = process.waitFor();
-        Log.e("OneApiService", "Process exited with code " + exitCode);
+    }
+
+    public static void stopProcess() {
+        File pidFile = new File("/data/data/com.example.oneapi/files/oneapi.pid");
+        if (pidFile.exists()) {
+            try (BufferedReader r = new BufferedReader(new FileReader(pidFile))) {
+                String pid = r.readLine();
+                if (pid != null && !pid.isEmpty()) {
+                    Runtime.getRuntime().exec(new String[]{"sh", "-c", "kill " + pid + " 2>/dev/null"});
+                }
+            } catch (Exception e) {
+                android.util.Log.e("OneApiService", "Error stopping: " + e.getMessage());
+            }
+            pidFile.delete();
+        }
         running = false;
-        stopSelf();
     }
 
     @Override
     public void onDestroy() {
-        if (process != null) {
-            process.destroy();
-            process = null;
-        }
         running = false;
         super.onDestroy();
     }

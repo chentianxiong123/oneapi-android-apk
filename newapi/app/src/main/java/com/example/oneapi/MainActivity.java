@@ -2,6 +2,7 @@ package com.example.oneapi;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -40,6 +41,7 @@ public class MainActivity extends AppCompatActivity {
 
         startStopBtn.setOnClickListener(v -> {
             if (running) {
+                OneApiService.stopProcess();
                 stopService(new Intent(this, OneApiService.class));
                 startStopBtn.setText("启动");
                 running = false;
@@ -54,7 +56,11 @@ public class MainActivity extends AppCompatActivity {
                 Intent intent = new Intent(this, OneApiService.class);
                 intent.putExtra("port", port.isEmpty() ? "3000" : port);
                 intent.putExtra("dns", dns.isEmpty() ? "8.8.8.8,8.8.4.4" : dns);
-                startForegroundService(intent);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    startForegroundService(intent);
+                } else {
+                    startService(intent);
+                }
 
                 startStopBtn.setText("停止");
                 running = true;
