@@ -1,6 +1,29 @@
-# MIPS (mipsel/mipsle) 交叉编译指南
+# NewAPI 全平台编译指南
 
-## 版本分类
+## 全版本一览
+
+### Android APK
+
+| 版本 | 架构 | 前端 | 大小 | 编译方式 | 用途 |
+|------|------|------|------|---------|------|
+| **app-debug.apk** | arm64 | 有 | 71MB | `build_from_source.ps1` → Gradle APK | Android 手机部署 |
+
+APK 内嵌 Go 二进制 + 前端页面，通过 env.conf 配置环境变量。在 Android 项目目录 `oneapi-android-apk/newapi/` 中编译。
+
+### Linux 通用二进制（arm/arm64）
+
+| 版本 | 架构 | 前端 | 大小 | 编译方式 | 用途 |
+|------|------|------|------|---------|------|
+| **linux-arm64** | arm64 | 无 | 55MB | 纯 Go 交叉编译 | 23049RAD8C 等 arm64 设备 |
+| **linux-arm** | armv7l | 无 | 55MB | 纯 Go 交叉编译 | HaiNaSi 等 armv7 设备 |
+
+编译命令：
+```sh
+GOOS=linux GOARCH=arm64 go build -tags no_web -ldflags="-s -w"
+GOOS=linux GOARCH=arm go build -tags no_web -ldflags="-s -w"
+```
+
+### MIPS 专用（RM2100 路由器）
 
 | 版本 | 数据库 | 前端 | 内存 | 编译方式 | 用途 |
 |------|--------|------|------|---------|------|
