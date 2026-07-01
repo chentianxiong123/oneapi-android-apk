@@ -1,5 +1,15 @@
 # MIPS (mipsel/mipsle) 交叉编译指南
 
+## 版本分类
+
+| 版本 | 数据库 | 前端 | 内存 | 编译方式 | 用途 |
+|------|--------|------|------|---------|------|
+| **mysql** | 远程 MySQL | 无 | ~40MB | 纯 Go 交叉编译 | 长期部署 |
+| **mysql-upx** | 远程 MySQL | 无 | ~40MB | 纯 Go 交叉编译 + UPX | 长期部署（省空间） |
+| **mysql-web** | 远程 MySQL | 有 | ~100MB | 纯 Go 交叉编译 | 参考（126MB 设备跑不了） |
+| **sqlite** | 本地 SQLite | 无 | ~60-80MB | CGo 静态交叉编译 | 性能压测 |
+| **sqlite-upx** | 本地 SQLite | 无 | ~60-80MB | CGo 静态交叉编译 + UPX | 压测（低内存设备慎用） |
+
 ## 最终产物
 
 `bin/release/` 目录下：
@@ -8,8 +18,19 @@
 |------|------|------|------|
 | `newapi-mipsle-mysql` | 纯 Go | 55MB | 远程 MySQL 版（UPX 后 10MB） |
 | `newapi-mipsle-mysql-upx` | 纯 Go UPX | 10MB | 远程 MySQL 版 UPX 压缩 |
+| `newapi-mipsle-mysql-web` | 纯 Go | 130MB | 远程 MySQL + 前端（参考用） |
 | `newapi-mipsle-sqlite` | CGo 静态 | 56MB | 本地 SQLite 版（UPX 后 10.5MB） |
 | `newapi-mipsle-sqlite-upx` | CGo 静态 UPX | 10.5MB | 本地 SQLite 版 UPX 压缩 |
+
+## 一键编译
+
+使用 `build-all.ps1`：
+
+```powershell
+.\build-all.ps1                    # 编译全部版本
+.\build-all.ps1 -OnlyMySQL -NoWeb  # 仅编译 MySQL 无前端版
+.\build-all.ps1 -OnlySQLite        # 仅编译 SQLite 版（需要 WSL + musl 工具链）
+```
 
 ---
 
@@ -36,10 +57,15 @@
 # 设置 go.mod replace
 go mod edit -replace github.com/glebarez/sqlite=./sqlite-stub
 
-# 交叉编译
+# 交叉编译（无前端）
 GOOS=linux GOARCH=mipsle GOMIPS=softfloat \
   go build -tags no_web -ldflags="-s -w" \
   -o bin/release/newapi-mipsle-mysql .
+
+# 交叉编译（有前端，130MB，RM2100 跑不了）
+GOOS=linux GOARCH=mipsle GOMIPS=softfloat \
+  go build -ldflags="-s -w" \
+  -o bin/release/newapi-mipsle-mysql-web .
 ```
 
 ### 部署
