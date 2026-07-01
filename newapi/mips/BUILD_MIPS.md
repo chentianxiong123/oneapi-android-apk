@@ -10,6 +10,15 @@
 
 APK 内嵌 Go 二进制 + 前端页面，通过 env.conf 配置环境变量。在 Android 项目目录 `oneapi-android-apk/newapi/` 中编译。
 
+### Android APK 注意事项与常见错误
+
+| 错误 | 原因 | 解决 |
+|------|------|------|
+| `go build` 找不到模块 | `build_from_source.ps1` 中 `cd` 路径不对 | `Push-Location $GoSrc` 后再 `go build` |
+| APK 闪退 | env.conf 格式错误 | 确认每行 `KEY=VALUE`，无空格 |
+| 服务不启动 | AndroidManifest.xml 中 service 未 export | `android:exported="true"` |
+| 限流生效 | 默认限流配置未关闭 | env.conf 中设 `GLOBAL_API_RATE_LIMIT_ENABLE=false` |
+
 ### Linux 通用二进制（arm/arm64）
 
 | 版本 | 架构 | 前端 | 大小 | 编译方式 | 用途 |
@@ -201,14 +210,20 @@ SQLITE_PATH=/tmp/bench.db /tmp/newapi --port 3000
 
 ---
 
-## 故障排除
+## 全平台故障排除
 
-| 错误 | 原因 | 解决 |
-|------|------|------|
-| `build constraints exclude all Go files` | `modernc.org/libc` 无 mipsle 标签 | 用 `go mod replace` 绕过或改用 CGo |
-| `stdlib.h: No such file or directory` | 缺少交叉编译 sysroot | 安装完整工具链 |
-| `sh: /path/newapi: not found` | ELF 动态链接器不存在 | 静态编译（`-static`） |
-| `Bus error` | musl libc 与 kernel 3.4 不兼容 | 静态编译，不使用 musl ld-musl |
-| `Input/output error` 写入闪存 | SPI NOR + ext4 不稳定 | 改用 /tmp（tmpfs） |
-| `OOM killed` | 内存不足 | 不压缩运行，预留 /tmp 空间 |
-| `HTTP 429/高错误率` 压测 | 限流或状态残留 | 重启进程，清理数据库 |
+| 平台 | 错误 | 原因 | 解决 |
+|------|------|------|------|
+| **Android** | `go build` 找不到模块 | `build_from_source.ps1` 路径问题 | `Push-Location $GoSrc` 后再编译 |
+| **Android** | APK 闪退 | env.conf 格式错误 | `KEY=VALUE`，无空格，每行一条 |
+| **Android** | 服务不启动 | service 未 export | `AndroidManifest.xml` 中 `exported="true"` |
+| **Android** | 限流生效 | 默认限流未关 | env.conf 设 `GLOBAL_API_RATE_LIMIT_ENABLE=false` |
+| **MIPS** | `build constraints exclude all Go files` | `modernc.org/libc` 无 mipsle 标签 | `go.mod replace` 绕过或改用 CGo |
+| **MIPS** | `stdlib.h: No such file or directory` | 缺少交叉编译 sysroot | 安装完整工具链 |
+| **MIPS** | `sh: /path/newapi: not found` | ELF 动态链接器不存在 | 静态编译 `-static` |
+| **MIPS** | `Bus error` | musl libc 与 kernel 3.4 不兼容 | 静态编译，不用 musl ld-musl |
+| **MIPS** | `Input/output error` 写闪存 | SPI NOR + ext4 不稳定 | 改用 `/tmp`（tmpfs） |
+| **MIPS** | `OOM killed` | 126MB 内存不足 | 不压缩运行，预留 `/tmp` 空间 |
+| **MIPS** | `HTTP 429/高错误率` 压测 | 限流或状态残留 | 重启进程，清理数据库 |
+| **MIPS** | `Connection refused` 压测 | 进程因 OOM 已死 | 重启，先清 `/tmp` |
+| **通用** | 压测数据不准 | MySQL 远程 | 标注"远程 MySQL 环境"后再用 |
