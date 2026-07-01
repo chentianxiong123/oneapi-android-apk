@@ -13,7 +13,7 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 
 public class MainActivity extends AppCompatActivity {
-    private EditText portInput, dnsInput;
+    private EditText portInput, dnsInput, envConfInput;
     private Button startStopBtn, openWebBtn;
     private TextView statusText, logText;
     private SharedPreferences prefs;
@@ -30,6 +30,7 @@ public class MainActivity extends AppCompatActivity {
 
         portInput = findViewById(R.id.port_input);
         dnsInput = findViewById(R.id.dns_input);
+        envConfInput = findViewById(R.id.env_conf_input);
         startStopBtn = findViewById(R.id.start_stop_btn);
         openWebBtn = findViewById(R.id.open_webview_btn);
         statusText = findViewById(R.id.status_text);
@@ -38,6 +39,7 @@ public class MainActivity extends AppCompatActivity {
 
         portInput.setText(prefs.getString("port", "3000"));
         dnsInput.setText(prefs.getString("dns", "8.8.8.8, 8.8.4.4"));
+        envConfInput.setText(prefs.getString("env_conf", ""));
 
         startStopBtn.setOnClickListener(v -> {
             if (running) {
@@ -51,11 +53,13 @@ public class MainActivity extends AppCompatActivity {
             } else {
                 String port = portInput.getText().toString().trim();
                 String dns = dnsInput.getText().toString().trim();
-                prefs.edit().putString("port", port).putString("dns", dns).apply();
+                String envConf = envConfInput.getText().toString();
+                prefs.edit().putString("port", port).putString("dns", dns).putString("env_conf", envConf).apply();
 
                 Intent intent = new Intent(this, OneApiService.class);
                 intent.putExtra("port", port.isEmpty() ? "3000" : port);
                 intent.putExtra("dns", dns.isEmpty() ? "8.8.8.8,8.8.4.4" : dns);
+                intent.putExtra("extra_env_conf", envConf);
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                     startForegroundService(intent);
                 } else {

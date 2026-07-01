@@ -46,14 +46,22 @@ $env:GOARCH = "arm64"
 $env:CGO_ENABLED = "0"
 $env:GOARM = ""
 
-$tagArg = if ($Tags) { "-tags $Tags" } else { "" }
 $outFile = Join-Path $ScriptDir $OutDir "liboneapi.so"
 
-Write-Output "Tags : '$Tags' $($tagArg ? "(no frontend)" : "(with frontend)")"
+Write-Output "Tags : '$Tags' $($Tags ? "(no frontend)" : "(with frontend)")"
 Write-Output "Output: $outFile"
 
 $null = New-Item -ItemType Directory -Path (Split-Path $outFile -Parent) -Force
-go build $tagArg -ldflags="-s -w" -o $outFile (Join-Path $GoSrc "main.go")
+Push-Location $GoSrc
+try {
+    if ($Tags) {
+        go build -tags $Tags -ldflags="-s -w" -o $outFile .
+    } else {
+        go build -ldflags="-s -w" -o $outFile .
+    }
+} finally {
+    Pop-Location
+}
 if ($LASTEXITCODE -ne 0) { throw "Go build failed" }
 
 $size = (Get-Item $outFile).Length / 1MB

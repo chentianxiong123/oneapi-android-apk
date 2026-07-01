@@ -20,6 +20,7 @@ public class OneApiService extends Service {
     private static boolean running = false;
     private static String lastPort = "3000";
     private static String lastDns = "8.8.8.8,8.8.4.4";
+    private static String lastEnvConf = "";
 
     public static boolean isRunning() {
         File pidFile = new File("/data/data/com.example.oneapi/files/oneapi.pid");
@@ -77,8 +78,10 @@ public class OneApiService extends Service {
         if (intent == null) return START_STICKY;
         String port = intent.getStringExtra("port");
         String dns = intent.getStringExtra("dns");
+        String envConf = intent.getStringExtra("extra_env_conf");
         if (port != null) lastPort = port;
         if (dns != null) lastDns = dns;
+        if (envConf != null) lastEnvConf = envConf;
 
         new Thread(() -> {
             try {
@@ -122,6 +125,15 @@ public class OneApiService extends Service {
                     w.write("nameserver " + s + "\n");
                 }
             }
+        }
+
+        File envConfFile = new File(workDir, "env.conf");
+        if (lastEnvConf != null && !lastEnvConf.isEmpty()) {
+            try (FileWriter w = new FileWriter(envConfFile)) {
+                w.write(lastEnvConf.trim() + "\n");
+            }
+        } else {
+            envConfFile.delete();
         }
 
         File hookLib = new File(getApplicationInfo().nativeLibraryDir, "libdns_hook.so");
