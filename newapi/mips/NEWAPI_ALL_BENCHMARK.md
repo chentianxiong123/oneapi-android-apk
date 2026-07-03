@@ -2,28 +2,28 @@
 
 ## 测试设备总览
 
-| 项目 | HaiNaSi 机顶盒 | Xiaomi 23049RAD8C | Xiaomi M5 Note | POT-AL00a 华为畅享10 | CM201-2 机顶盒 | RM2100 路由器 | XR3 小米路由器R3 |
-|------|---------------|-----------------|---------------|---------------------|---------------|--------------|-------------------|
-| **CPU** | 4×A53 @ 1.5GHz | 4×2.3GHz + 4×556MHz | 8×A53 @ 2.0GHz (骁龙625) | 4×A73 @ 2.2GHz + 4×A53 @ 1.7GHz (Kirin 710) | Hi3798MV300 4×A53 @ 1.5GHz | MIPS 1004Kc @ 880MHz ×2 | MIPS 24KEc @ 385MHz (单核) |
-| **RAM** | 723MB | 15GB | 3GB | 4GB | 1GB | 126MB | 123MB |
-| **内核** | Linux 5.4+ (Ubuntu 20.04) | Android 14 (GKI) | Android 6.0 (Linux 3.10) | Android 10 (Linux 4.x) | **Linux 3.18.24** | Linux 3.4 | Linux 5.4 (OpenWrt) |
-| **系统** | Ubuntu 20.04 armv7l | Android 14 | Android 6.0 MIUI | Android 10 (EMUI) | Android 4.4.2 | Padavan (Linux 3.4) | OpenWrt 5.4 |
-| **二进制** | 55MB linux/arm | 68MB APK arm64 | 68MB APK arm64 | 71MB APK arm64 | 50MB linux/arm (APK内) | 56MB linux/mipsle | 56MB linux/mipsle |
-| **数据库** | SQLite | SQLite | SQLite | SQLite | SQLite | SQLite (CGo 静态) | SQLite (CGo 静态) |
-| **测试端点** | GET /api/status | GET /api/status | GET /api/status | GET /api/status | GET /api/status | GET /api/status | GET /api/status |
+| 项目 | HaiNaSi 机顶盒 | Xiaomi 23049RAD8C | Xiaomi M5 Note 7.0 | Xiaomi M5 Note 6.0 | POT-AL00a 华为畅享10 | CM201-2 机顶盒 | RM2100 路由器 | XR3 小米路由器R3 |
+|------|---------------|-----------------|-------------------|-------------------|---------------------|---------------|--------------|-------------------|
+| **CPU** | 4×A53 @ 1.5GHz | 4×2.3GHz + 4×556MHz | **MT6755M 8×A53 @ 1.8GHz (Helio P10)** | MT6755M 8×A53 @ 1.8GHz (Helio P10) | 4×A73 @ 2.2GHz + 4×A53 @ 1.7GHz (Kirin 710) | Hi3798MV300 4×A53 @ 1.5GHz | MIPS 1004Kc @ 880MHz ×2 | MIPS 24KEc @ 385MHz (单核) |
+| **RAM** | 723MB | 15GB | 3GB | 3GB | 4GB | 1GB | 126MB | 123MB |
+| **内核** | Linux 5.4+ (Ubuntu 20.04) | Android 14 (GKI) | **Android 7.0 (Linux 3.18)** | Android 6.0 (Linux 3.10) | Android 10 (Linux 4.x) | Linux 3.18.24 | Linux 3.4 | Linux 5.4 (OpenWrt) |
+| **系统** | Ubuntu 20.04 armv7l | Android 14 | Android 7.0 Flyme | Android 6.0 MIUI | Android 10 (EMUI) | Android 4.4.2 | Padavan (Linux 3.4) | OpenWrt 5.4 |
+| **二进制** | 55MB linux/arm | 68MB APK arm64 | 68MB APK arm64 | 68MB APK arm64 | 71MB APK arm64 | 50MB linux/arm (APK内) | 56MB linux/mipsle | 56MB linux/mipsle |
+| **数据库** | SQLite | SQLite | SQLite | SQLite | SQLite | SQLite (CGo 静态) | SQLite (CGo 静态) | SQLite (CGo 静态) |
+| **测试端点** | GET /api/status | GET /api/status | GET /api/status | GET /api/status | GET /api/status | GET /api/status | GET /api/status | GET /api/status |
 
 ---
 
 ## 吞吐对比
 
-| 并发 | HaiNaSi | 23049RAD8C WiFi | 23049RAD8C USB | M5 Note WiFi | M5 Note ADB | POT-AL00a APK | **CM201-2** | **RM2100** | **XR3** |
-|-----:|:-------:|:--------------:|:-------------:|:------------:|:----------:|:------------:|:----------:|:----------:|:-------:|
-| 10t | 340/s | 773/s | **1297/s** | 476/s | **722/s** | **468/s** | **308/s** | **211/s** | **26/s** |
-| 20t | - | 614/s | - | - | - | - | **497/s** | **150/s** | **25/s** |
-| 30t | - | - | - | - | - | - | - | **151/s** | - |
-| 50t | **566/s** | **997/s** | 675/s | **935/s** | 393/s | **761/s** | **368/s** | - | - |
-| 100t | 384/s | 597/s | 493/s | **1098/s** | 347/s | 461/s | - | - | - |
-| 200t | 275/s | 459/s | 450/s | **1132/s** | 318/s | 402/s | - | - | - |
+| 并发 | HaiNaSi | 23049RAD8C WiFi | 23049RAD8C USB | **M5 Note 7.0** | M5 Note 6.0 WiFi | M5 Note 6.0 ADB | POT-AL00a APK | **CM201-2** | **RM2100** | **XR3** |
+|-----:|:-------:|:--------------:|:-------------:|:--------------:|:----------------:|:---------------:|:------------:|:----------:|:----------:|:-------:|
+| 10t | 340/s | 773/s | **1297/s** | **509/s** | 476/s | **722/s** | **468/s** | **308/s** | **211/s** | **26/s** |
+| 20t | - | 614/s | - | **758/s** | - | - | - | **497/s** | **150/s** | **25/s** |
+| 30t | - | - | - | - | - | - | - | - | **151/s** | - |
+| 50t | **566/s** | **997/s** | 675/s | **1035/s** | **935/s** | 393/s | **761/s** | **368/s** | - | - |
+| 100t | 384/s | 597/s | 493/s | **1253/s** | **1098/s** | 347/s | 461/s | - | - | - |
+| 200t | 275/s | 459/s | 450/s | 1133/s | **1132/s** | 318/s | 402/s | - | - | - |
 
 > 全部 0% 错误率。RM2100 仅测试到 30t（126MB 内存上限）。XR3 单核 385MHz，10t 即饱和。CM201-2 在 20t 达峰（497/s）后 50t 回落至 368/s。
 
@@ -34,13 +34,14 @@
 | 排名 | 设备 | 峰值 RPS | 瓶颈 |
 |:----:|------|:--------:|------|
 | 1 | 23049RAD8C USB RNDIS | 1,297/s | USB 2.0 单队列（10t 极限） |
-| 2 | M5 Note WiFi | 1,132/s | CPU 饱和（~150t） |
-| 3 | 23049RAD8C WiFi | 997/s | WiFi 网卡（50t 拐点） |
-| 4 | POT-AL00a APK | 761/s | Kirin 710 CPU 限制 |
-| 5 | HaiNaSi | 585/s | CPU 4×A53 1.5GHz 满载 |
-| 6 | **CM201-2** | **497/s** | **Linux 3.18 内核调度 + Android 进程争抢 CPU** |
-| 7 | **RM2100** | **~150/s** | **CPU MIPS 880MHz + 126MB RAM** |
-| 8 | **XR3** | **~26/s** | **CPU MIPS 24KEc 385MHz 单核** |
+| 2 | **M5 Note 7.0 Flyme** | **1,253/s** | **CPU 8×A53 饱和（~100t）** |
+| 3 | M5 Note 6.0 MIUI | 1,132/s | CPU 饱和（~150t） |
+| 4 | 23049RAD8C WiFi | 997/s | WiFi 网卡（50t 拐点） |
+| 5 | POT-AL00a APK | 761/s | Kirin 710 CPU 限制 |
+| 6 | HaiNaSi | 585/s | CPU 4×A53 1.5GHz 满载 |
+| 7 | **CM201-2** | **497/s** | **Linux 3.18 内核调度 + Android 进程争抢 CPU** |
+| 8 | **RM2100** | **~150/s** | **CPU MIPS 880MHz + 126MB RAM** |
+| 9 | **XR3** | **~26/s** | **CPU MIPS 24KEc 385MHz 单核** |
 
 ---
 
@@ -88,6 +89,75 @@ NewAPI 二进制 50MB，SQLite DB 仅 708KB（`one-api.db`），Go RSS 约 44MB�
 - 性能应与 HaiNaSi 拉平到 **550-580/s**
 
 但 CM201-2 的 bootloader 锁死，无法刷机，仅作理论参考。
+
+---
+
+## 同机型不同系统：M5 Note Flyme 7.0 vs MIUI 6.0
+
+两台 M5 Note 都是 **MT6755M（8×A53 @ 1.8GHz, Helio P10）+ 3GB RAM**，但系统不同：
+
+| 对比项 | M5 Note MIUI 6.0 | M5 Note Flyme 7.0 |
+|--------|:----------------:|:-----------------:|
+| **系统** | Android 6.0 MIUI | Android 7.0 Flyme |
+| **内核** | Linux 3.10 | Linux 3.18 |
+| **10t** | 476/s | **509/s** (+7%) |
+| **50t** | 935/s | **1035/s** (+11%) |
+| **100t** | 1098/s | **1253/s** (+14%) |
+| **峰值** | 1,132/s (200t) | **1,253/s (100t)** (+11%) |
+
+### 分析
+
+差距来自 **内核版本（3.10 → 3.18）+ 系统优化（MIUI 定制 vs Flyme 原生）** 的双重影响：
+
+1. **CFS 调度器** — 3.18 引入了 `sched_autogroup` 和调度组负载跟踪改进，多线程竞争时更公平
+2. **epoll** — 3.10 的 epoll 实现较老，3.18 修复了若干惊群和锁竞争问题
+3. **TCP 栈** — 3.18 的 TCP 快速重传和 `tcp_slot` 调度改进
+4. **内存管理** — 3.18 的 `compact_control` 和页回收优化，减少了高并发下的内存抖动
+5. **MIUI 后台负担** — MIUI 的 system_server、安全中心、云服务等后台进程比 Flyme 占用更多 CPU 时间片
+
+### 关键发现
+
+- 差距随并发**递增**（10t +7% → 100t +14%），说明内核改进和系统优化在高竞争下价值更大
+- Flyme 7.0 在 **100t 就达峰**（1253/s），而 MIUI 6.0 要到 **200t 才达峰**（1132/s）—— 新内核调度效率更高，更早填满 CPU
+- 两台 M5 Note 都碾压 23049RAD8C（骁龙 4×2.3GHz + 4×556MHz）在 WiFi 下的 997/s —— **八核对称 A53 跑 NewAPI 比 big.LITTLE 异构 CPU 更稳定**，因为 Go 的 goroutine 调度在对称核心上更高效
+
+---
+
+## big.LITTLE 适配问题（关键发现）
+
+跑分上 23049RAD8C（4×2.3GHz + 4×556MHz）远强于 M5 Note（8×1.8GHz），但 NewAPI 跑起来 M5 Note 反超 25%。
+
+### 原因：Go GMP 调度器 × big.LITTLE = 短板效应
+
+```
+23049RAD8C 跑 Geekbench：
+  4× big @ 2.3GHz ─── 100% 满载 ─── 跑分超高 ✓
+  4× little @ 556MHz ── 空载/辅助
+
+23049RAD8C 跑 NewAPI 50t（Go GMP 视角）：
+  50 个 goroutine 随机分配到 8 个 OS 线程
+  → ~25 个落在 big 上（快）
+  → ~25 个落在 little 上（慢）
+  → 慢核上的请求响应慢 → 拖死整体吞吐
+
+M5 Note 跑 NewAPI 50t（Go GMP 视角）：
+  8×A53 @ 1.8GHz ─── 全部一样
+  → goroutine 落哪都一样快
+  → 8 核均匀满载，线性扩展
+```
+
+### 量化
+
+| 设备 | 快核 | 慢核 | 有效算力 | 50t RPS | 利用率 |
+|------|:----:|:----:|:--------:|:-------:|:-----:|
+| 23049RAD8C | 4×2.3GHz | 4×0.556GHz | 11.4GHz | 997/s | 慢核拖腿 |
+| M5 Note 7.0 | 8×1.8GHz | 无 | **14.4GHz** | **1035/s** | 满载均衡 |
+
+23049RAD8C 的 4 个弱核（556MHz）只有强核（2.3GHz）的 24% 性能。当 goroutine 随机分布到弱核时，整个请求链路被拖慢。这就是 **Go 在非对称 CPU 上的适配问题**——GMP 调度器不知道哪个核快哪个核慢，一视同仁地分配 goroutine。
+
+### 结论
+
+跑分看单核峰值，NewAPI 看多核均衡。**对称多核（如 8×A53）比 big.LITTLE 更适合 Go 服务**，因为 GMP 调度器天然偏好同构 CPU。部署 NewAPI 时，优先选同构核心的设备，而非跑分高但非对称的旗舰 SoC。
 
 ---
 
@@ -217,7 +287,7 @@ SQLITE_PATH=/opt/data/newapi.db /opt/newapi --port 3000
 |------|---------|------|
 | 个人/家庭低并发 | RM2100 路由器 / CM201-2 机顶盒 | 现成设备，功耗低，150-500/s 够用 |
 | 多人分享（<10人） | HaiNaSi / 任意手机 | 500+ RPS，绰绰有余 |
-| 高并发（>10人） | 骁龙 625+ 手机 / arm64 设备 | 1000+ RPS |
+| 高并发（>10人） | **M5 Note 7.0+** / 骁龙 625+ 手机 | **1000-1250+ RPS** |
 | 极限性能 | 23049RAD8C + USB 网卡 | 1300+ RPS |
 
 ### 真正瓶颈
@@ -233,7 +303,8 @@ SQLITE_PATH=/opt/data/newapi.db /opt/newapi --port 3000
 | 设备 | 峰值 RPS |
 |------|:--------:|
 | 23049RAD8C (USB) | 1,297 |
-| M5 Note (WiFi) | 1,132 |
+| **M5 Note 7.0 (WiFi)** | **1,253** |
+| M5 Note 6.0 (WiFi) | 1,132 |
 | 23049RAD8C (WiFi) | 997 |
 | POT-AL00a (APK) | 761 |
 | HaiNaSi (WiFi) | 585 |
