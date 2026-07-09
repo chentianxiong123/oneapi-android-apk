@@ -14,9 +14,18 @@ local.properties
 
 # Downloaded binary
 app/src/main/jniLibs/arm64-v8a/liboneapi.so
+newapi/mips/
+newapi/app/.cxx/
+newapi/app/build/
+newapi/go-source/newapi_android_arm64
+newapi/go-source/newapi_arm_noweb
+newapi/go-source/newapi_linux_arm64_noweb
+newapi/go-source/newapi_linux_arm7
 
 # Tokenizer cache
 app/src/main/assets/cl100k_base.tiktoken
+newapi/go-source/web/**/dist/
+newapi/go-source/web/**/node_modules/
 
 # OS
 .DS_Store
